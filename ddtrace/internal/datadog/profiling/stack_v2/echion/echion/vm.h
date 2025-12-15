@@ -318,6 +318,17 @@ init_safe_copy()
  *
  * @return  zero on success, otherwise non-zero.
  */
+#if defined(ECHION_FUZZING)
+// Let the fuzzing harness control the copy_memory behavior, so we can simulate "garbage" reads.
+extern "C" int
+echion_fuzz_copy_memory(proc_ref_t proc_ref, const void* addr, ssize_t len, void* buf);
+
+static inline int
+copy_memory(proc_ref_t proc_ref, const void* addr, ssize_t len, void* buf)
+{
+    return echion_fuzz_copy_memory(proc_ref, addr, len, buf);
+}
+#else
 static inline int
 copy_memory(proc_ref_t proc_ref, const void* addr, ssize_t len, void* buf)
 {
@@ -353,6 +364,7 @@ copy_memory(proc_ref_t proc_ref, const void* addr, ssize_t len, void* buf)
 
     return len != result;
 }
+#endif
 
 inline pid_t pid = 0;
 
