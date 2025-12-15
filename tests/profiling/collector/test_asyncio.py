@@ -3,7 +3,6 @@ import asyncio
 import glob
 import os
 import sys
-from typing import Optional
 import uuid
 
 import pytest
