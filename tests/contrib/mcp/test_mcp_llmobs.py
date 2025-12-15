@@ -94,7 +94,7 @@ def test_llmobs_mcp_client_calls_server(mcp_setup, mock_tracer, llmobs_events, m
             "structuredContent": None,
             "isError": False
         }),
-        tags={"service": "mcptest", "ml_app": "<ml-app-name>", "mcp_tool_kind": "server"},
+        tags={"service": "mcptest", "ml_app": "<ml-app-name>", "mcp_method": "tools/call", "mcp_tool": "calculator", "mcp_tool_kind": "server"},
     )
 
     # asserting the remaining spans
@@ -122,7 +122,7 @@ def test_llmobs_mcp_client_calls_server(mcp_setup, mock_tracer, llmobs_events, m
         span_kind="task",
         input_value=mock.ANY,
         output_value=mock.ANY,
-        tags={"service": "mcptest", "ml_app": "<ml-app-name>", "client_name": "mcp", "client_version": "mcp_0.1.0"},
+        tags={"service": "mcptest", "ml_app": "<ml-app-name>", "mcp_method": "initialize", "client_name": "mcp", "client_version": "mcp_0.1.0"},
     )
 
     # tools/list call
@@ -196,7 +196,7 @@ def test_llmobs_client_server_tool_error(mcp_setup, mock_tracer, llmobs_events, 
             "structuredContent": None,
             "isError": True
         }),
-        tags={"service": "mcptest", "ml_app": "<ml-app-name>", "mcp_tool_kind": "server"},
+        tags={"service": "mcptest", "ml_app": "<ml-app-name>", "mcp_method": "tools/call", "mcp_tool": "failing_tool", "mcp_tool_kind": "server"},
         error="ToolError",
         error_message="tool resulted in an error",
         error_stack="",
