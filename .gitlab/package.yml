@@ -1,5 +1,6 @@
 variables:
   IMAGE_BASE_URL: "registry.ddbuild.io/dd-trace-py"
+  MANYLINUX_AMD64_IMAGE_TAG: "v85383392-751efc0-manylinux2014_x86_64"
 
 .PYTHON_VERSIONS: &PYTHON_VERSIONS
   - "3.9"
@@ -44,11 +45,14 @@ variables:
 
 "build sdist":
   extends: .build_base
-  image: "${IMAGE_BASE_URL}:v85280965-e932d4a-manylinux2014_x86_64"
-  tags: [ "arch:amd64" ]
+  image: "${IMAGE_BASE_URL}:${IMAGE_TAG}"
+  tags: [ "arch:${ARCH_TAG}" ]
   variables:
     DD_CYTHONIZE: "0"
+    ARCH_TAG: "amd64"
+    PYTHON_TAG: "cp314-cp314"
     UV_PYTHON: "/opt/python/cp314-cp314/bin/python"
+    IMAGE_TAG: "${MANYLINUX_AMD64_IMAGE_TAG}"
   script:
     - .gitlab/scripts/build-sdist.sh
 
