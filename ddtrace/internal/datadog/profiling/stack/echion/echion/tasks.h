@@ -74,7 +74,10 @@ class GenInfo
   public:
     typedef std::unique_ptr<GenInfo> Ptr;
 
+    // The address of the Task PyObject* the GenInfo represents
     PyObject* origin = nullptr;
+
+    // The address of the Frame PyObject* the GenInfo represents
     PyObject* frame = nullptr;
 
     // The coroutine awaited by this coroutine, if any
@@ -182,11 +185,20 @@ class TaskInfo
     typedef std::unique_ptr<TaskInfo> Ptr;
     typedef std::reference_wrapper<TaskInfo> Ref;
 
-    PyObject* origin = NULL;
-    PyObject* loop = NULL;
+    // The address of the Task PyObject* the TaskInfo represents
+    PyObject* origin = nullptr;
 
+    // The address of the asyncio Event Loop PyObject* the Task is running on
+    PyObject* loop = nullptr;
+
+    // The name of the Task
     StringTable::Key name;
+
+    // Whether the Task's coroutine (or a coroutine it awaits, transitively) is currently running (on CPU).
+    // This will not be true if the Task is currently awaiting another Task, and this other Task is on CPU.
     bool is_on_cpu = false;
+
+    // The Task's "root" coroutine
     GenInfo::Ptr coro = nullptr;
 
     // Information to reconstruct the async stack as best as we can
