@@ -79,7 +79,7 @@ class MCPIntegration(BaseLLMIntegration):
         annotations = _get_attr(item, "annotations", None)
         annotations_dict = {}
         if annotations and hasattr(annotations, "model_dump"):
-            annotations_dict = annotations.model_dump()  # type: ignore[union-attr]
+            annotations_dict = annotations.model_dump()
 
         content_block = {
             "type": _get_attr(item, "type", "") or "",
@@ -145,7 +145,7 @@ class MCPIntegration(BaseLLMIntegration):
             processed_content = [
                 self._parse_mcp_text_content(item)
                 for item in content
-                if _get_attr(item, "type", None) == "text"  # type: ignore[union-attr]
+                if _get_attr(item, "type", None) == "text"
             ]
         output_value = {"content": processed_content, "isError": is_error}
         span._set_ctx_item(OUTPUT_VALUE, output_value)
@@ -227,10 +227,16 @@ class MCPIntegration(BaseLLMIntegration):
         if maybe_session_id:
             custom_tags["mcp_session_id"] = str(maybe_session_id)
 
+        # Exclude tracing context metadata from the recorded input
+        if request_root and hasattr(request_root, "model_dump"):
+            input_obj = request_root.model_dump(exclude={"params": {"meta": "_dd_trace_context"}})
+        else:
+            input_obj = request_root
+
         output_value = safe_json(response_root)
 
         span._set_ctx_items(
-            {NAME: span_name, SPAN_KIND: span_kind, INPUT_VALUE: safe_json(request_root), OUTPUT_VALUE: output_value}
+            {NAME: span_name, SPAN_KIND: span_kind, INPUT_VALUE: safe_json(input_obj), OUTPUT_VALUE: output_value}
         )
         if custom_tags:
             _set_or_update_tags(span, custom_tags)

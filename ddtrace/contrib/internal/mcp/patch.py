@@ -212,15 +212,16 @@ async def traced_client_session_aexit(mcp, pin: Pin, func, instance, args: tuple
 @with_traced_module
 def traced_request_responder_enter(mcp, pin: Pin, func, instance, args: tuple, kwargs: dict):
     integration: MCPIntegration = mcp._datadog_integration
-    request = instance.request.root
+    request = _get_attr(instance, "request", None)
+    request_root = _get_attr(request, "root", None)
 
     # While this patch can trace all requests, we only trace this type right now
-    if not isinstance(request, InitializeRequest) and not isinstance(request, CallToolRequest):
+    if not isinstance(request_root, InitializeRequest) and not isinstance(request_root, CallToolRequest):
         return func(*args, **kwargs)
 
-    # For CallToolRequest, activate distributed tracing if enabled
-    if isinstance(request, CallToolRequest) and config.mcp.distributed_tracing:
-        request_params = _get_attr(request, "params", None)
+    # Activate distributed tracing if enabled
+    if isinstance(request_root, CallToolRequest) and config.mcp.distributed_tracing:
+        request_params = _get_attr(request_root, "params", None)
         meta = _get_attr(request_params, "meta", None) if request_params else None
         meta_dict = meta.model_dump() if meta else {}
         headers = meta_dict.get("_dd_trace_context", {})
@@ -228,7 +229,7 @@ def traced_request_responder_enter(mcp, pin: Pin, func, instance, args: tuple, k
             activate_distributed_headers(pin.tracer, config.mcp, headers)
 
     span = integration.trace(
-        pin, REQUEST_RESPONDER_ENTER_OPERATION_NAME, submit_to_llmobs=True, span_name="mcp.{}".format(request.method)
+        pin, REQUEST_RESPONDER_ENTER_OPERATION_NAME, submit_to_llmobs=True, span_name="mcp.{}".format(_get_attr(request_root, "method", "unknown"))
     )
     setattr(instance, "_dd_span", span)
 
