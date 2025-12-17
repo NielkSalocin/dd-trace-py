@@ -363,6 +363,7 @@ class LockCollector(collector.CaptureSamplerCollector):
         if internal_module_file is None:
             # Default to threading.__file__ for backward compatibility
             import threading as threading_module
+
             internal_module_file = threading_module.__file__
 
         def _profiled_allocate_lock(*args: Any, **kwargs: Any) -> _ProfiledLock:

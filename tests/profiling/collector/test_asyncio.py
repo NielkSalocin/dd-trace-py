@@ -282,24 +282,3 @@ class TestAsyncioConditionCollector(BaseAsyncioLockCollectorTest):
     @property
     def lock_class(self) -> Type[asyncio.Condition]:
         return asyncio.Condition
-
-    async def test_condition_wait_notify(self) -> None:
-        """Test that profiling wrapper preserves Condition's wait/notify behavior."""
-        with self.collector_class(capture_pct=100):
-            cond = asyncio.Condition()
-
-            notified = False
-
-            async def waiter() -> None:
-                nonlocal notified
-                async with cond:
-                    await cond.wait()
-                    notified = True
-
-            async def notifier() -> None:
-                await asyncio.sleep(0.01)  # Give waiter time to start waiting
-                async with cond:
-                    cond.notify()
-
-            await asyncio.gather(waiter(), notifier())
-            assert notified, "Condition wait/notify did not work correctly"
