@@ -124,17 +124,7 @@ microbenchmarks:
     # Allow failures if explicitly asked
     - if: $RELEASE_ALLOW_BENCHMARK_FAILURES == "true"
       allow_failure: true
-    # Always run on PRs, tagged releases, and main or release branches
-    - if: $HAS_OPEN_PR == "true"
-      when: always
-    - if: $IS_MAIN_BRANCH == "true"
-      when: always
-    - if: $IS_RELEASE_BRANCH == "true"
-      when: always
-    - if: $IS_RELEASE == "true"
-      when: always
-    # Otherwise, run manually
-    - when: manual
+    - when: on_sucess
   trigger:
     include: .gitlab/benchmarks/microbenchmarks.yml
     strategy: depend
@@ -164,11 +154,11 @@ macrobenchmarks:
     - if: $RELEASE_ALLOW_BENCHMARK_FAILURES == "true"
       allow_failure: true
     # Always run on tagged releases, and main or release branches
-    - if: $IS_MAIN_BRANCH == "true"
+    - if: $CI_COMMIT_BRANCH == "main"
       when: always
-    - if: $IS_RELEASE_BRANCH == "true"
+    - if: $CI_COMMIT_BRANCH =~ /^[0-9]+\.[0-9]+$/
       when: always
-    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+/
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$/
       when: always
     # Otherwise, run manually
     - when: manual

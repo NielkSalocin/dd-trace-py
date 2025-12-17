@@ -81,7 +81,7 @@ variables:
 
 "build macos":
   extends: .build_base
-  tags: [ "macos:sonoma-$ARCH_TAG" ]
+  tags: [ "macos:sonoma-$ARCH_TAG", "specific:true" ]
   parallel:
     matrix:
       - ARCH_TAG: "amd64"
@@ -91,7 +91,11 @@ variables:
   variables:
     SYSTEM_VERSION_COMPAT: "0"
   rules:
-    - if: $IS_MAIN_BRANCH == "true" || $IS_RELEASE_BRANCH == "true" || $IS_RELEASE == "true"
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    - if: $CI_COMMIT_BRANCH =~ /^[0-9]+\.[0-9]+$/
+      when: always
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$/
       when: always
     - if: $UV_PYTHON == "3.14"
       when: always
@@ -131,16 +135,6 @@ download_ddtrace_artifacts:
   id_tokens:
     DDOCTOSTS_ID_TOKEN:
       aud: dd-octo-sts
-  rules:
-    - if: $IS_MAIN_BRANCH == "true"
-      when: always
-    - if: $IS_RELEASE_BRANCH == "true"
-      when: always
-    - if: $IS_RELEASE == "true"
-      when: always
-    - if: $HAS_OPEN_PR == "true"
-      when: always
-    - when: manual
   script: |
     if [ -z ${GH_TOKEN} ]
     then
