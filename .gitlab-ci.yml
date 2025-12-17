@@ -124,7 +124,7 @@ microbenchmarks:
     # Allow failures if explicitly asked
     - if: $RELEASE_ALLOW_BENCHMARK_FAILURES == "true"
       allow_failure: true
-    - when: on_sucess
+    - allow_failure: false
   trigger:
     include: .gitlab/benchmarks/microbenchmarks.yml
     strategy: depend
