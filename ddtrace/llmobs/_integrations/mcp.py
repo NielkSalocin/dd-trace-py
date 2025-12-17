@@ -143,9 +143,7 @@ class MCPIntegration(BaseLLMIntegration):
         processed_content = []
         if content and hasattr(content, "__iter__"):
             processed_content = [
-                self._parse_mcp_text_content(item)
-                for item in content
-                if _get_attr(item, "type", None) == "text"
+                self._parse_mcp_text_content(item) for item in content if _get_attr(item, "type", None) == "text"
             ]
         output_value = {"content": processed_content, "isError": is_error}
         span._set_ctx_item(OUTPUT_VALUE, output_value)

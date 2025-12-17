@@ -229,7 +229,10 @@ def traced_request_responder_enter(mcp, pin: Pin, func, instance, args: tuple, k
             activate_distributed_headers(pin.tracer, config.mcp, headers)
 
     span = integration.trace(
-        pin, REQUEST_RESPONDER_ENTER_OPERATION_NAME, submit_to_llmobs=True, span_name="mcp.{}".format(_get_attr(request_root, "method", "unknown"))
+        pin,
+        REQUEST_RESPONDER_ENTER_OPERATION_NAME,
+        submit_to_llmobs=True,
+        span_name="mcp.{}".format(_get_attr(request_root, "method", "unknown")),
     )
     setattr(instance, "_dd_span", span)
 
