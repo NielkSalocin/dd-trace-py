@@ -1,0 +1,20 @@
+stages:
+  - fuzz
+
+variables:
+  REPO_LANG: python # "python" is used everywhere rather than "py"
+  # CI_DEBUG_SERVICES: "true"
+
+include:
+  - local: ".gitlab/services.yml"
+  - local: ".gitlab/testrunner.yml"
+
+fuzz infra:
+  extends: .testrunner
+  stage: fuzz
+  # Hatch doesn't use pre-built wheels or venvs so we can start them right away
+  needs: [prechecks]
+  before_script:
+    - !reference [.testrunner, before_script]
+  script:
+    - .gitlab/scripts/fuzz_infra.py
