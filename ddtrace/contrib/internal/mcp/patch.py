@@ -7,6 +7,7 @@ from typing import Optional
 import mcp
 from mcp.types import CallToolRequest
 from mcp.types import InitializeRequest
+from mcp.types import ListToolsResult
 
 from ddtrace import config
 from ddtrace._trace.pin import Pin
@@ -32,6 +33,7 @@ config._add(
     "mcp",
     {
         "distributed_tracing": asbool(os.getenv("DD_MCP_DISTRIBUTED_TRACING", default=True)),
+        "capture_intent": asbool(os.getenv("DD_MCP_CAPTURE_INTENT", default=False)),
     },
 )
 
@@ -240,6 +242,9 @@ def traced_request_responder_enter(mcp, pin: Pin, func, instance, args: tuple, k
     )
     setattr(instance, "_dd_span", span)
 
+    if isinstance(request_root, CallToolRequest):
+        integration.process_ddtrace_argument(span, request_root)
+
     return func(*args, **kwargs)
 
 
@@ -261,8 +266,13 @@ def traced_request_responder_exit(mcp, pin: Pin, func, instance, args: tuple, kw
 
 @with_traced_module
 async def traced_request_responder_respond(mcp, pin: Pin, func, instance, args: tuple, kwargs: dict):
+    response_arg = args[0] if len(args) > 0 else None
+    response = getattr(response_arg, "root", None)
     integration: MCPIntegration = mcp._datadog_integration
     span: Optional[Span] = getattr(instance, "_dd_span", None)
+
+    if config.mcp.capture_intent and isinstance(response, ListToolsResult):
+        integration.inject_tools_list_response(response)
 
     if span:
         integration.llmobs_set_tags(

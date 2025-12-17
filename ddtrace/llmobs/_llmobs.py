@@ -71,6 +71,7 @@ from ddtrace.llmobs._constants import INPUT_MESSAGES
 from ddtrace.llmobs._constants import INPUT_PROMPT
 from ddtrace.llmobs._constants import INPUT_VALUE
 from ddtrace.llmobs._constants import INTEGRATION
+from ddtrace.llmobs._constants import INTENT
 from ddtrace.llmobs._constants import LLMOBS_TRACE_ID
 from ddtrace.llmobs._constants import METADATA
 from ddtrace.llmobs._constants import METRICS
@@ -388,6 +389,9 @@ class LLMObs(Service):
 
         if span._get_ctx_item(TOOL_DEFINITIONS) is not None:
             meta["tool_definitions"] = span._get_ctx_item(TOOL_DEFINITIONS) or []
+        intent = span._get_ctx_item(INTENT)
+        if intent is not None:
+            meta["intent"] = str(intent)
         if span.error:
             meta["error"] = _ErrorField(
                 message=span.get_tag(ERROR_MSG) or "",
