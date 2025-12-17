@@ -26,6 +26,10 @@ class _ProfiledThreadingBoundedSemaphore(_lock._ProfiledLock):
     pass
 
 
+class _ProfiledThreadingCondition(_lock._ProfiledLock):
+    pass
+
+
 class ThreadingLockCollector(_lock.LockCollector):
     """Record threading.Lock usage."""
 
@@ -56,6 +60,14 @@ class ThreadingBoundedSemaphoreCollector(_lock.LockCollector):
     PROFILED_LOCK_CLASS = _ProfiledThreadingBoundedSemaphore
     MODULE = threading
     PATCHED_LOCK_NAME = "BoundedSemaphore"
+
+
+class ThreadingConditionCollector(_lock.LockCollector):
+    """Record threading.Condition usage."""
+
+    PROFILED_LOCK_CLASS = _ProfiledThreadingCondition
+    MODULE = threading
+    PATCHED_LOCK_NAME = "Condition"
 
 
 # Also patch threading.Thread so echion can track thread lifetimes
