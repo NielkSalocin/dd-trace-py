@@ -359,7 +359,7 @@ class LockCollector(collector.CaptureSamplerCollector):
         original_lock: Any = self._original_lock  # Capture non-None value
 
         # Determine which module file to check for internal lock detection
-        internal_module_file: Optional[str] = self.INTERNAL_MODULE_FILE or
+        internal_module_file: Optional[str] = self.INTERNAL_MODULE_FILE
         if internal_module_file is None:
             # Default to threading.__file__ for backward compatibility
             import threading as threading_module
